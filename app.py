@@ -4,6 +4,5 @@ app = Flask(__name__)
 
 @app.route("/")
 def hola():
-    return "Hola Mundo desde Flask en Hosting 🚀"
+    return "Hola Mundo"
 
-# ❌ NO pongas app.run()
