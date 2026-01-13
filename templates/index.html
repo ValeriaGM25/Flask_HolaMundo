@@ -1,20 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Flask reCAPTCHA</title>
+    <meta charset="UTF-8">
+    <title>Proyecto Flask</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
-<h2>Formulario Flask</h2>
+<div class="container">
+    <h1>Python-Flask</h1>
 
-<form method="POST">
-    <div class="g-recaptcha" data-sitekey="{{ site_key }}"></div>
-    <br>
-    <button type="submit">Guardar datos</button>
-</form>
+    <form method="POST">
+        <div class="g-recaptcha" data-sitekey="{{ site_key }}"></div>
+        <button type="submit">Enviar</button>
+    </form>
 
-<p>{{ mensaje }}</p>
+    {% if mensaje %}
+        <p class="mensaje">{{ mensaje }}</p>
+    {% endif %}
+
+    <h2>Datos guardados</h2>
+    <table>
+        <tr>
+            <th>Nombre</th>
+            <th>Mensaje</th>
+        </tr>
+        {% for r in registros %}
+        <tr>
+            <td>{{ r[0] }}</td>
+            <td>{{ r[1] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="/bienvenida" class="link">Ir a Bienvenida</a>
+</div>
 
 </body>
 </html>
