@@ -1,15 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Proyecto Flask</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-</head>
-<body>
+{% extends "base.html" %}
 
+{% block content %}
 <div class="container">
-    <h1>Python-Flask</h1>
+
+    <h1>Python Flask</h1>
 
     <form method="POST">
         <div class="g-recaptcha" data-sitekey="{{ site_key }}"></div>
@@ -21,6 +15,7 @@
     {% endif %}
 
     <h2>Datos guardados</h2>
+
     <table>
         <tr>
             <th>Nombre</th>
@@ -34,8 +29,5 @@
         {% endfor %}
     </table>
 
-    <a href="/bienvenida" class="link">Ir a Bienvenida</a>
 </div>
-
-</body>
-</html>
+{% endblock %}

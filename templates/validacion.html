@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+
+    <h2>Formulario</h2>
+
+    <form method="POST">
+        <input name="nombre" placeholder="Nombre">
+        <input name="edad" placeholder="Edad">
+        <input name="correo" placeholder="Correo">
+        <input name="correo2" placeholder="Confirmar correo">
+        <button>Enviar</button>
+    </form>
+
+    {% if mensaje %}
+        <p class="mensaje">{{ mensaje }}</p>
+    {% endif %}
+
+</div>
+{% endblock %}

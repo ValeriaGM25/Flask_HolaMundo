@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Proyecto Flask</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<nav>
+    <a href="{{ url_for('index') }}">Inicio</a>
+    <a href="{{ url_for('operaciones') }}">Calculadora</a>
+    <a href="{{ url_for('validacion') }}">Formulario</a>
+    <a href="{{ url_for('error') }}">Errores</a>
+</nav>
+
+{% block content %}{% endblock %}
+
+</body>
+</html>

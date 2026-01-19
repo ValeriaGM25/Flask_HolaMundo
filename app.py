@@ -61,5 +61,76 @@ def index():
 def bienvenida():
     return render_template("bienvenida.html")
 
+# -----------------------------
+# CALCULADORA (SIN VALIDACIÓN)
+# -----------------------------
+@app.route("/operaciones", methods=["GET", "POST"])
+def operaciones():
+    suma = None
+    division = None
+
+    if request.method == "POST":
+        a = request.form.get("a")
+        b = request.form.get("b")
+        c = request.form.get("c")
+        d = request.form.get("d")
+
+        # SIN validación a propósito
+        suma = int(a) + int(b)
+        division = int(c) / int(d)
+
+    return render_template(
+        "operaciones.html",
+        suma=suma,
+        division=division
+    )
+
+
+# -----------------------------
+# FORMULARIO CON VALIDACIÓN
+# -----------------------------
+@app.route("/validacion", methods=["GET", "POST"])
+def validacion():
+    mensaje = ""
+
+    if request.method == "POST":
+        nombre = request.form.get("nombre")
+        edad = request.form.get("edad")
+        correo = request.form.get("correo")
+        correo2 = request.form.get("correo2")
+
+        if not nombre or not edad or not correo or not correo2:
+            mensaje = "Todos los campos son obligatorios"
+        elif not edad.isdigit():
+            mensaje = "La edad debe ser numérica"
+        elif correo != correo2:
+            mensaje = "Los correos no coinciden"
+        else:
+            mensaje = "Formulario validado correctamente ✅"
+
+    return render_template("validacion.html", mensaje=mensaje)
+
+
+# -----------------------------
+# PÁGINA DE ERRORES (MANUAL)
+# -----------------------------
+@app.route("/error")
+def error():
+    return render_template("error.html", error="Página de errores")
+
+
+# -----------------------------
+# MANEJO DE ERRORES
+# -----------------------------
+@app.errorhandler(404)
+def error_404(e):
+    return render_template("error.html", error="404 - Página no encontrada"), 404
+
+
+@app.errorhandler(500)
+def error_500(e):
+    return render_template("error.html", error="500 - Error interno del servidor"), 500
+
+
 if __name__ == "__main__":
     app.run(debug=True)

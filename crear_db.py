@@ -6,7 +6,7 @@ cursor = conn.cursor()
 cursor.execute("""
     INSERT INTO registros (nombre, mensaje)
     VALUES (?, ?)
-""", ("Prueba", "Desarrolloweb"))
+""", ("Prueba", "Desarrollo Web"))
 
 
 conn.commit()

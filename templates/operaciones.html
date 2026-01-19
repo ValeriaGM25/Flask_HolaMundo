@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+
+    <h2>Calculadora</h2>
+
+    <form method="POST">
+        <input name="a" placeholder="Dato 1">
+        <input name="b" placeholder="Dato 2">
+        <button>Sumar</button>
+    </form>
+
+    <form method="POST">
+        <input name="c" placeholder="Dividendo">
+        <input name="d" placeholder="Divisor">
+        <button>Dividir</button>
+    </form>
+
+    {% if suma is not none %}
+        <p class="mensaje">Resultado suma: {{ suma }}</p>
+    {% endif %}
+
+    {% if division is not none %}
+        <p class="mensaje">Resultado división: {{ division }}</p>
+    {% endif %}
+
+</div>
+{% endblock %}
