@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
+
 import sqlite3
 import requests
+import base64
 
 app = Flask(__name__)
 
@@ -9,6 +11,21 @@ SECRET_KEY = "6LehvUQsAAAAANusKcHRfF0w5DkX0L1JYl8Ae28Q"
 
 def get_db():
     return sqlite3.connect("database.db")
+
+def init_db():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS registros (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        mensaje TEXT NOT NULL
+    )
+    """)
+    conn.commit()
+    conn.close()
+
+init_db()
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -46,7 +63,8 @@ def index():
     # Obtener registros
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT nombre, mensaje FROM registros")
+    cursor.execute("SELECT id, nombre, mensaje FROM registros")
+
     registros = cursor.fetchall()
     conn.close()
 
@@ -56,6 +74,17 @@ def index():
         mensaje=mensaje,
         registros=registros
     )
+    
+@app.route("/eliminar/<int:id>", methods=["POST"])
+def eliminar_registro(id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM registros WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("index"))
+
+
 
 @app.route("/bienvenida")
 def bienvenida():
@@ -98,18 +127,46 @@ def validacion():
         edad = request.form.get("edad")
         correo = request.form.get("correo")
         correo2 = request.form.get("correo2")
+        foto = request.files.get("foto")
 
-        if not nombre or not edad or not correo or not correo2:
+        if not nombre or not edad or not correo or not correo2 or not foto:
             mensaje = "Todos los campos son obligatorios"
         elif not edad.isdigit():
             mensaje = "La edad debe ser numérica"
         elif correo != correo2:
             mensaje = "Los correos no coinciden"
         else:
-            mensaje = "Formulario validado correctamente ✅"
+            foto_bytes = foto.read()
 
-    return render_template("validacion.html", mensaje=mensaje)
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO formularios (nombre, edad, correo, foto)
+                VALUES (?, ?, ?, ?)
+            """, (nombre, int(edad), correo, foto_bytes))
+            conn.commit()
+            conn.close()
 
+            mensaje = "Formulario guardado correctamente ✅"
+
+    # 🔽 OBTENER DATOS PARA MOSTRAR
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT nombre, edad, correo, foto FROM formularios")
+    datos = cursor.fetchall()
+    conn.close()
+
+    # Convertir imagen a Base64
+    registros = []
+    for d in datos:
+        imagen_base64 = base64.b64encode(d[3]).decode("utf-8")
+        registros.append((d[0], d[1], d[2], imagen_base64))
+
+    return render_template(
+        "validacion.html",
+        mensaje=mensaje,
+        registros=registros
+    )
 
 # -----------------------------
 # PÁGINA DE ERRORES (MANUAL)
@@ -130,7 +187,6 @@ def error_404(e):
 @app.errorhandler(500)
 def error_500(e):
     return render_template("error.html", error="500 - Error interno del servidor"), 500
-
 
 if __name__ == "__main__":
     app.run(debug=True)

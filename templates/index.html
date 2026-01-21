@@ -18,13 +18,23 @@
 
     <table>
         <tr>
+            <th>#</th>
             <th>Nombre</th>
             <th>Mensaje</th>
+            <th>Acción</th>
         </tr>
+
         {% for r in registros %}
         <tr>
-            <td>{{ r[0] }}</td>
+            <td>{{ loop.index }}</td>
             <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('eliminar_registro', id=r[0]) }}"
+                      onsubmit="return confirm('¿Seguro que deseas eliminar este registro?');">
+                    <button style="background:#dc2626;">Eliminar</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>

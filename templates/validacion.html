@@ -5,17 +5,46 @@
 
     <h2>Formulario</h2>
 
-    <form method="POST">
-        <input name="nombre" placeholder="Nombre">
-        <input name="edad" placeholder="Edad">
-        <input name="correo" placeholder="Correo">
-        <input name="correo2" placeholder="Confirmar correo">
+    <form method="POST" enctype="multipart/form-data">
+        <input name="nombre" placeholder="Nombre" required>
+        <input name="edad" placeholder="Edad" required>
+        <input name="correo" placeholder="Correo" required>
+        <input name="correo2" placeholder="Confirmar correo" required>
+
+        <input type="file" name="foto" accept="image/*" required>
+
         <button>Enviar</button>
     </form>
 
     {% if mensaje %}
         <p class="mensaje">{{ mensaje }}</p>
     {% endif %}
+
+    <hr>
+
+    <h2>Registros guardados</h2>
+
+    <table>
+        <tr>
+            <th>Nombre</th>
+            <th>Edad</th>
+            <th>Correo</th>
+            <th>Foto</th>
+        </tr>
+
+        {% for r in registros %}
+        <tr>
+            <td>{{ r[0] }}</td>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+            <td>
+                <img src="data:image/jpeg;base64,{{ r[3] }}"
+                     width="80"
+                     style="border-radius: 6px;">
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 
 </div>
 {% endblock %}

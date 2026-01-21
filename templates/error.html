@@ -1,10 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container error">
+<div class="container error-page">
 
-    <h2>Error</h2>
-    <p>{{ error }}</p>
+    <h1 class="error-code">{{ error.split(" ")[0] }}</h1>
+
+    <h2 class="error-title">
+        {{ error }}
+    </h2>
+
+    <p class="error-message">
+        Ocurrió un problema al cargar la página.<br>
+        Verifica la URL o regresa a la página principal.
+    </p>
+
+    <a href="{{ url_for('index') }}" class="btn-error">
+        Volver al inicio
+    </a>
 
 </div>
 {% endblock %}
