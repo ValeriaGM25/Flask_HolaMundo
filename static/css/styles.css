@@ -1,0 +1,233 @@
+/* ----------- VARIABLES ----------- */
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --bg-light: #f4f6f8;
+    --bg-dark: #111827;
+    --text-main: #1f2937;
+    --radius: 12px;
+}
+
+/* ----------- GENERAL ----------- */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #eef2ff, #e5e7eb);
+    margin: 0;
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+/* ----------- CONTENEDOR ----------- */
+.container {
+    width: 95%;
+    max-width: 750px;
+    margin: 40px auto;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: var(--radius);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    backdrop-filter: blur(6px);
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+/* ----------- ANIMACIONES ----------- */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ----------- TITULOS ----------- */
+h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 22px;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+h1, h2 {
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+/* ----------- FORMULARIOS ----------- */
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* ----------- BOTONES ----------- */
+button {
+    margin-top: 18px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
+}
+
+/* Botón eliminar */
+button[style*="dc2626"],
+.btn-danger {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+button[style*="dc2626"]:hover,
+.btn-danger:hover {
+    box-shadow: 0 10px 25px rgba(220, 38, 38, 0.45);
+}
+
+/* ----------- TABLAS ----------- */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    font-size: 14px;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+th {
+    background: var(--bg-dark);
+    color: white;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+tr:hover {
+    background: #eef2ff;
+}
+
+/* ----------- MENSAJES ----------- */
+.mensaje {
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 600;
+    border-left: 5px solid #0284c7;
+}
+
+/* ----------- LINKS ----------- */
+.link, a {
+    display: inline-block;
+    margin-top: 18px;
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.link:hover, a:hover {
+    text-decoration: underline;
+}
+
+/* ----------- ERROR ----------- */
+.error-page {
+    text-align: center;
+    padding: 70px 20px;
+}
+
+.error-code {
+    font-size: 110px;
+    font-weight: 800;
+    color: #dc2626;
+    margin-bottom: 10px;
+}
+
+.error-title {
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.error-message {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.btn-error {
+    display: inline-block;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-error:hover {
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+}
+
+/* ----------- NAVBAR ----------- */
+nav {
+    background: linear-gradient(135deg, #1f2937, #020617);
+    padding: 15px 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+nav a {
+    color: #e5e7eb;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+}
+
+nav a:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* ----------- CARRUSEL ----------- */
+.carousel img {
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 12px;
+}
