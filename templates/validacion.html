@@ -3,18 +3,93 @@
 {% block content %}
 <div class="container">
 
-    <h2>Formulario</h2>
+    <h2>Formulario de Registro</h2>
+    <p style="color:#6b7280;">Completa todos los campos requeridos</p>
 
     <form method="POST" enctype="multipart/form-data">
-        <input name="nombre" placeholder="Nombre" required>
-        <input name="edad" placeholder="Edad" required>
-        <input name="correo" placeholder="Correo" required>
-        <input name="correo2" placeholder="Confirmar correo" required>
 
-        <input type="file" name="foto" accept="image/*" required>
+    <div class="form-grid">
 
-        <button>Enviar</button>
-    </form>
+        <div class="form-group">
+            <label>Nombre completo</label>
+            <div class="input-icon">
+                <input type="text" name="nombre" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Fecha de nacimiento</label>
+            <div class="input-icon">
+                <input type="date" name="fecha_nacimiento" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Sexo</label>
+            <div class="input-icon">
+                <select name="sexo" required>
+                    <option value="">Seleccionar</option>
+                    <option>Femenino</option>
+                    <option>Masculino</option>
+                    <option>Otro</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Teléfono</label>
+            <div class="input-icon">
+                <input type="tel" name="telefono" pattern="[0-9]{10}" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Correo electrónico</label>
+            <div class="input-icon">
+                <input type="email" name="correo" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Confirmar correo</label>
+            <div class="input-icon">
+                <input type="email" name="correo2" required>
+            </div>
+        </div>
+
+        <div class="form-group full">
+            <label>Dirección</label>
+            <div class="input-icon">
+                <textarea name="direccion" required></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+    <label>Fotografía</label>
+    <input
+        type="file"
+        name="foto"
+        accept="image/png, image/jpeg, image/jpg, image/webp"
+        required>
+    <small style="color:#6b7280;">
+        Formatos permitidos: JPG, JPEG, PNG, WEBP
+    </small>
+</div>
+
+
+        <div class="form-group full">
+            <label>Observaciones</label>
+            <textarea name="observaciones"></textarea>
+        </div>
+
+    </div>
+
+    <div class="form-footer">
+        <button type="submit">Guardar registro</button>
+    </div>
+
+</form>
+
 
     {% if mensaje %}
         <p class="mensaje">{{ mensaje }}</p>
@@ -27,7 +102,7 @@
     <table>
         <tr>
             <th>Nombre</th>
-            <th>Edad</th>
+            <th>Fecha Nac.</th>
             <th>Correo</th>
             <th>Foto</th>
         </tr>
@@ -40,7 +115,7 @@
             <td>
                 <img src="data:image/jpeg;base64,{{ r[3] }}"
                      width="80"
-                     style="border-radius: 6px;">
+                     style="border-radius: 8px;">
             </td>
         </tr>
         {% endfor %}

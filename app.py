@@ -2,9 +2,19 @@ from flask import Flask, render_template, request, redirect, url_for
 
 import sqlite3
 import requests
+import re
+import imghdr
 import base64
 
 app = Flask(__name__)
+# -----------------------------
+# FORMATOS DE IMAGEN PERMITIDOS
+# -----------------------------
+FORMATOS_PERMITIDOS = {"jpeg", "jpg", "png", "webp"}
+
+REGEX_NOMBRE = r"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$"
+REGEX_CORREO = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+
 
 SITE_KEY = "6LehvUQsAAAAAGldvO1QR8Da4yc3upv2yP3sgmgR"
 SECRET_KEY = "6LehvUQsAAAAANusKcHRfF0w5DkX0L1JYl8Ae28Q"
@@ -120,6 +130,97 @@ def operaciones():
 # -----------------------------
 @app.route("/validacion", methods=["GET", "POST"])
 def validacion():
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    mensaje = None
+
+    if request.method == "POST":
+
+        nombre = request.form.get("nombre", "").strip()
+        fecha_nacimiento = request.form.get("fecha_nacimiento")
+        sexo = request.form.get("sexo")
+        telefono = request.form.get("telefono")
+        correo = request.form.get("correo", "").strip()
+        correo2 = request.form.get("correo2", "").strip()
+        direccion = request.form.get("direccion")
+        observaciones = request.form.get("observaciones")
+
+        # -----------------------------
+        # VALIDAR NOMBRE (SOLO LETRAS)
+        # -----------------------------
+        if not re.match(REGEX_NOMBRE, nombre):
+            mensaje = "❌ El nombre solo debe contener letras y espacios"
+
+        # -----------------------------
+        # VALIDAR CORREO (SINTAXIS)
+        # -----------------------------
+        elif not re.match(REGEX_CORREO, correo):
+            mensaje = "❌ El correo no tiene un formato válido"
+
+        # -----------------------------
+        # VALIDAR CORREOS IGUALES
+        # -----------------------------
+        elif correo != correo2:
+            mensaje = "❌ Los correos no coinciden"
+
+        else:
+            # -----------------------------
+            # VALIDAR IMAGEN
+            # -----------------------------
+            foto = request.files.get("foto")
+
+            if not foto:
+                mensaje = "❌ Debes subir una fotografía"
+            else:
+                foto_bytes = foto.read()
+                tipo_imagen = imghdr.what(None, foto_bytes)
+
+                if tipo_imagen not in FORMATOS_PERMITIDOS:
+                    mensaje = "❌ Solo se permiten imágenes JPG, PNG o WEBP"
+                else:
+                    foto_base64 = base64.b64encode(foto_bytes).decode("utf-8")
+
+                    # -----------------------------
+                    # GUARDAR EN BD
+                    # -----------------------------
+                    cursor.execute("""
+                        INSERT INTO formularios
+                        (nombre, fecha_nacimiento, sexo, telefono, correo, direccion, observaciones, foto)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        nombre,
+                        fecha_nacimiento,
+                        sexo,
+                        telefono,
+                        correo,
+                        direccion,
+                        observaciones,
+                        foto_base64
+                    ))
+
+                    conn.commit()
+                    mensaje = "✅ Registro guardado correctamente"
+
+    # -----------------------------
+    # OBTENER REGISTROS
+    # -----------------------------
+    cursor.execute("""
+        SELECT nombre, fecha_nacimiento, correo, foto
+        FROM formularios
+        ORDER BY id DESC
+    """)
+    registros = cursor.fetchall()
+
+    conn.close()
+
+    return render_template(
+        "validacion.html",
+        mensaje=mensaje,
+        registros=registros
+    )
+
     mensaje = ""
 
     if request.method == "POST":
