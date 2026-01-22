@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Bienvenida{% endblock %}
+
+{% block content %}
+<div class="app-container welcome-container">
+
+    <!-- HERO -->
+    <div class="welcome-hero">
+        <h1>Bienvenido 🚀</h1>
+        <p>
+            Proyecto desarrollado con <strong>Python & Flask</strong><br>
+            Formularios, validaciones, base de datos y más.
+        </p>
+        
+        <a href="{{ url_for('main.home') }}" class="btn btn-primary btn-lg mt-3">
+            Entrar al sistema
+        </a>
+    </div>
+    <br>
+    <br>
+    <!-- FEATURES -->
+    <div class="welcome-features">
+        <div class="feature-card">
+            <h3>🧮 Calculadora</h3>
+            <p>Operaciones básicas</p>
+            <a href="{{ url_for('main.operaciones') }}">Ver módulo</a>
+        </div>
+        <br>
+
+        <div class="feature-card">
+            <h3>📝 Formulario</h3>
+            <a href="{{ url_for('main.validacion') }}">Ver módulo</a>
+        </div>
+        <br>
+
+        <div class="feature-card">
+            <h3>⚠️ Errores</h3>
+            <p>Manejo de errores 404 y 500 personalizados.</p>
+            <a href="{{ url_for('main.error_page') }}">Ver módulo</a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,95 +1,93 @@
 {% extends "base.html" %}
 
+{% block title %}Formulario{% endblock %}
+
 {% block content %}
-<div class="container">
+<div class="app-container">
 
     <h2>Formulario de Registro</h2>
     <p style="color:#6b7280;">Completa todos los campos requeridos</p>
 
     <form method="POST" enctype="multipart/form-data">
+        <div class="form-grid">
 
-    <div class="form-grid">
-
-        <div class="form-group">
-            <label>Nombre completo</label>
-            <div class="input-icon">
-                <input type="text" name="nombre" required>
+            <div class="form-group">
+                <label>Nombre completo</label>
+                <div class="input-icon">
+                    <input type="text" name="nombre" required>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label>Fecha de nacimiento</label>
-            <div class="input-icon">
-                <input type="date" name="fecha_nacimiento" required>
+            <div class="form-group">
+                <label>Fecha de nacimiento</label>
+                <div class="input-icon">
+                    <input type="date" name="fecha_nacimiento" required>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label>Sexo</label>
-            <div class="input-icon">
-                <select name="sexo" required>
-                    <option value="">Seleccionar</option>
-                    <option>Femenino</option>
-                    <option>Masculino</option>
-                    <option>Otro</option>
-                </select>
+            <div class="form-group">
+                <label>Sexo</label>
+                <div class="input-icon">
+                    <select name="sexo" required>
+                        <option value="">Seleccionar</option>
+                        <option>Femenino</option>
+                        <option>Masculino</option>
+                        <option>Otro</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label>Teléfono</label>
-            <div class="input-icon">
-                <input type="tel" name="telefono" pattern="[0-9]{10}" required>
+            <div class="form-group">
+                <label>Teléfono</label>
+                <div class="input-icon">
+                    <input type="tel" name="telefono" pattern="[0-9]{10}" required>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label>Correo electrónico</label>
-            <div class="input-icon">
-                <input type="email" name="correo" required>
+            <div class="form-group">
+                <label>Correo electrónico</label>
+                <div class="input-icon">
+                    <input type="email" name="correo" required>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label>Confirmar correo</label>
-            <div class="input-icon">
-                <input type="email" name="correo2" required>
+            <div class="form-group">
+                <label>Confirmar correo</label>
+                <div class="input-icon">
+                    <input type="email" name="correo2" required>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group full">
-            <label>Dirección</label>
-            <div class="input-icon">
-                <textarea name="direccion" required></textarea>
+            <div class="form-group full">
+                <label>Dirección</label>
+                <div class="input-icon">
+                    <textarea name="direccion" required></textarea>
+                </div>
             </div>
+
+            <div class="form-group">
+                <label>Fotografía</label>
+                <input
+                    type="file"
+                    name="foto"
+                    accept="image/png, image/jpeg, image/jpg, image/webp"
+                    required>
+                <small style="color:#6b7280;">
+                    Formatos permitidos: JPG, JPEG, PNG, WEBP
+                </small>
+            </div>
+
+            <div class="form-group full">
+                <label>Observaciones</label>
+                <textarea name="observaciones"></textarea>
+            </div>
+
         </div>
 
-        <div class="form-group">
-    <label>Fotografía</label>
-    <input
-        type="file"
-        name="foto"
-        accept="image/png, image/jpeg, image/jpg, image/webp"
-        required>
-    <small style="color:#6b7280;">
-        Formatos permitidos: JPG, JPEG, PNG, WEBP
-    </small>
-</div>
-
-
-        <div class="form-group full">
-            <label>Observaciones</label>
-            <textarea name="observaciones"></textarea>
+        <div class="form-footer">
+            <button type="submit" class="btn btn-primary">Guardar registro</button>
         </div>
-
-    </div>
-
-    <div class="form-footer">
-        <button type="submit">Guardar registro</button>
-    </div>
-
-</form>
-
+    </form>
 
     {% if mensaje %}
         <p class="mensaje">{{ mensaje }}</p>
@@ -113,9 +111,15 @@
             <td>{{ r[1] }}</td>
             <td>{{ r[2] }}</td>
             <td>
-                <img src="data:image/jpeg;base64,{{ r[3] }}"
+                <img src="data:{{ r[4] }};base64,{{ r[3] }}"
                      width="80"
                      style="border-radius: 8px;">
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4" style="text-align:center; color:#6b7280; padding: 16px;">
+                No hay registros aún.
             </td>
         </tr>
         {% endfor %}

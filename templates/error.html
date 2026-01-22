@@ -1,20 +1,22 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="container error-page">
+{% block title %}Error{% endblock %}
 
-    <h1 class="error-code">{{ error.split(" ")[0] }}</h1>
+{% block content %}
+<div class="app-container error-page">
+
+    <h1 class="error-code">⚠️</h1>
 
     <h2 class="error-title">
-        {{ error }}
+        Algo salió mal
     </h2>
 
     <p class="error-message">
-        Ocurrió un problema al cargar la página.<br>
-        Verifica la URL o regresa a la página principal.
+        Ocurrió un problema al procesar tu solicitud.<br>
+        Por favor, intenta nuevamente o regresa al inicio.
     </p>
 
-    <a href="{{ url_for('index') }}" class="btn-error">
+    <a href="{{ url_for('main.home') }}" class="btn-error">
         Volver al inicio
     </a>
 

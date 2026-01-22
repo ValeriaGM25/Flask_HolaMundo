@@ -3,7 +3,9 @@ import sqlite3
 conn = sqlite3.connect("database.db")
 cursor = conn.cursor()
 
-# Tabla index (reCAPTCHA)
+# -----------------------------
+# TABLA HOME (reCAPTCHA)
+# -----------------------------
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS registros (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -12,7 +14,9 @@ CREATE TABLE IF NOT EXISTS registros (
 )
 """)
 
-# Tabla formulario COMPLETO
+# -----------------------------
+# TABLA FORMULARIO COMPLETO
+# -----------------------------
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS formularios (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,7 +27,8 @@ CREATE TABLE IF NOT EXISTS formularios (
     correo TEXT NOT NULL,
     direccion TEXT NOT NULL,
     observaciones TEXT,
-    foto TEXT NOT NULL
+    foto TEXT NOT NULL,
+    foto_tipo TEXT NOT NULL
 )
 """)
 
