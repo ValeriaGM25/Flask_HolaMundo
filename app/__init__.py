@@ -1,8 +1,13 @@
 from flask import Flask
 import sqlite3
+import os
+
+# Carpeta raíz del proyecto (Flask_HolaMundo/)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH = os.path.join(BASE_DIR, "database.db")
 
 def get_db():
-    return sqlite3.connect("database.db")
+    return sqlite3.connect(DB_PATH)
 
 def init_db():
     conn = get_db()
@@ -36,7 +41,7 @@ def init_db():
 
 def create_app():
     app = Flask(__name__)
-    app.config["SECRET_KEY"] = "clave-secreta"
+    app.config["SECRET_KEY"] = "6LehvUQsAAAAANusKcHRfF0w5DkX0L1JYl8Ae28Q"  # puedes dejarla así por ahora
 
     init_db()
 
