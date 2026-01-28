@@ -2,6 +2,7 @@ from flask import Flask
 import sqlite3
 import os
 
+# Carpeta raíz del proyecto: /home/Valeria05/Flask_HolaMundo
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DB_PATH = os.path.join(BASE_DIR, "database.db")
@@ -38,7 +39,7 @@ def init_db():
     )
     """)
 
-    # si usas carrusel con BD
+    # Si usas carrusel con uploads/BD:
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS carousel_images (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,11 +51,7 @@ def init_db():
     conn.close()
 
 def create_app():
-    app = Flask(
-        __name__,
-        template_folder=TEMPLATES_DIR,
-        static_folder=STATIC_DIR
-    )
+    app = Flask(__name__, template_folder=TEMPLATES_DIR, static_folder=STATIC_DIR)
     app.config["SECRET_KEY"] = "6LehvUQsAAAAANusKcHRfF0w5DkX0L1JYl8Ae28Q"
 
     init_db()
