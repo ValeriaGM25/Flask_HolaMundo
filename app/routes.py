@@ -22,8 +22,8 @@ REGEX_NUMERO = r"^[0-9]+$"
 REGEX_NOMBRE = r"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$"
 REGEX_CORREO = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 
-SITE_KEY = " 6LehvUQsAAAAAGldvO1QR8Da4yc3upv2yP3sgmgR"
-SECRET_KEY = " 6LehvUQsAAAAANusKcHRfF0w5DkX0L1JYl8Ae28Q"
+SITE_KEY = "6LehvUQsAAAAAGldvO1QR8Da4yc3upv2yP3sgmgR"
+SECRET_KEY = "6LehvUQsAAAAANusKcHRfF0w5DkX0L1JYl8Ae28Q"
 
 def get_db():
     return sqlite3.connect("database.db")
