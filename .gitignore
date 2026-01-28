@@ -1,4 +1,9 @@
+# Base de datos local
 database.db
+
+# Archivos de Python
 __pycache__/
 *.pyc
+
+# Variables de entorno
 .env
