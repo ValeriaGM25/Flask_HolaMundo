@@ -5,12 +5,19 @@ import re
 import imghdr
 import base64
 
+import os
+import uuid
+from werkzeug.utils import secure_filename
+from flask import current_app
+from . import get_db   
+
 main_routes = Blueprint("main", __name__)
 
 # -----------------------------
 # CONFIG / CONSTANTES
 # -----------------------------
 FORMATOS_PERMITIDOS = {"jpeg", "jpg", "png", "webp"}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 REGEX_NUMERO = r"^[0-9]+$"
 REGEX_NOMBRE = r"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$"
 REGEX_CORREO = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
@@ -22,15 +29,76 @@ def get_db():
     return sqlite3.connect("database.db")
 
 
+def allowed_file(filename: str) -> bool:
+    if not filename or "." not in filename:
+        return False
+    ext = filename.rsplit(".", 1)[-1].lower()
+    return ext in ALLOWED_EXTENSIONS
+
+
+def breadcrumb_home():
+    return [{"label": "Inicio", "url": url_for("main.home")}]
+
+
 # -----------------------------
 # BIENVENIDA -> HOME
 # -----------------------------
 @main_routes.route("/")
 def welcome():
-    return render_template("welcome.html")
+    return render_template(
+        "welcome.html",
+        breadcrumb=[{"label": "Bienvenida", "url": url_for("main.welcome")}],
+    )
 
 @main_routes.route("/home", methods=["GET", "POST"])
 def home():
+    mensaje = ""
+
+    if request.method == "POST":
+        recaptcha_response = request.form.get("g-recaptcha-response")
+
+        data = {"secret": SECRET_KEY, "response": recaptcha_response}
+        r = requests.post("https://www.google.com/recaptcha/api/siteverify", data=data)
+        result = r.json()
+
+        if result.get("success"):
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO registros (nombre, mensaje)
+                VALUES (?, ?)
+            """, ("Prueba", "Desarrollo Web"))
+            conn.commit()
+            conn.close()
+
+            mensaje = "Datos guardados correctamente ✅"
+        else:
+            mensaje = "reCAPTCHA inválido ❌"
+
+    # ---- registros (lo tuyo) ----
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, nombre, mensaje FROM registros")
+    registros = cursor.fetchall()
+
+    # ---- imágenes carrusel (nuevo) ----
+    cursor.execute("SELECT id, filename FROM carousel_images ORDER BY id DESC")
+    carousel_images = cursor.fetchall()
+
+    conn.close()
+
+    return render_template(
+        "index.html",
+        site_key=SITE_KEY,
+        mensaje=mensaje,
+        registros=registros,
+        carousel_images=carousel_images,
+        breadcrumb=[
+            {"label": "Inicio", "url": url_for("main.home")},
+            {"label": "Home", "url": url_for("main.home")},
+        ],
+    )
+
     mensaje = ""
 
     if request.method == "POST":
@@ -66,6 +134,37 @@ def home():
         mensaje=mensaje,
         registros=registros
     )
+    
+@main_routes.route("/upload_slide", methods=["POST"])
+def upload_slide():
+    file = request.files.get("slide")
+
+    if not file or file.filename.strip() == "":
+        return redirect(url_for("main.home"))
+
+    filename = secure_filename(file.filename)
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+
+    if ext not in ALLOWED_EXTENSIONS:
+        return redirect(url_for("main.home"))
+
+    # carpeta static/uploads
+    upload_folder = os.path.join(current_app.static_folder, "uploads")
+    os.makedirs(upload_folder, exist_ok=True)
+
+    # nombre único para evitar choques
+    new_name = f"{uuid.uuid4().hex}.{ext}"
+    file.save(os.path.join(upload_folder, new_name))
+
+    # guardar en BD
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO carousel_images (filename) VALUES (?)", (new_name,))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("main.home"))
+
 
 @main_routes.route("/eliminar/<int:id>", methods=["POST"])
 def eliminar_registro(id):
@@ -139,13 +238,14 @@ def operaciones():
     return render_template(
         "operaciones.html",
         suma=suma,
-        division=division
+        division=division,
+        breadcrumb=[
+            {"label": "Inicio", "url": url_for("main.home")},
+            {"label": "Calculadora", "url": url_for("main.operaciones")},
+        ],
     )
     
     
-
-
-
 # -----------------------------
 # FORMULARIO CON VALIDACIÓN
 # -----------------------------
@@ -220,7 +320,10 @@ def validacion():
     registros = cursor.fetchall()
     conn.close()
 
-    return render_template("validacion.html", mensaje=mensaje, registros=registros)
+    return render_template("validacion.html", mensaje=mensaje, registros=registros,  breadcrumb=[
+            {"label": "Inicio", "url": url_for("main.home")},
+            {"label": "Formulario", "url": url_for("main.validacion")},
+        ],)
 
 @main_routes.route("/eliminar_formulario/<int:id>", methods=["POST"])
 def eliminar_formulario(id):
@@ -237,7 +340,11 @@ def eliminar_formulario(id):
 # -----------------------------
 @main_routes.route("/error")
 def error_page():
-    return render_template("error.html", error="Página de errores")
+    return render_template("error.html", error="Página de errores",breadcrumb=[
+            {"label": "Inicio", "url": url_for("main.home")},
+            {"label": "Errores", "url": url_for("main.error_page")},
+        ],
+)
 
 @main_routes.app_errorhandler(404)
 def error_404(e):

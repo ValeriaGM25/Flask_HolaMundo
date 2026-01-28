@@ -297,3 +297,51 @@ textarea {
         grid-template-columns: 1fr;
     }
 }
+
+/* Breadcrumb estilizado pero compacto */
+.breadcrumb {
+    font-size: 0.78rem;
+    padding: 0;
+    margin: 0.4rem 0 0.9rem 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+}
+
+/* Separador elegante */
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: #9ca3af;
+    font-weight: 600;
+    margin: 0 0.35rem;
+}
+
+/* Links */
+.breadcrumb a {
+    color: #6b7280;
+    text-decoration: none;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.breadcrumb a:hover {
+    background: #eef2ff;
+    color: #2563eb;
+}
+
+/* Página actual */
+.breadcrumb-item.active {
+    color: #1f2937;
+    font-weight: 600;
+    background: linear-gradient(135deg, #e0e7ff, #eef2ff);
+    padding: 2px 8px;
+    border-radius: 999px; /* tipo badge */
+}
+

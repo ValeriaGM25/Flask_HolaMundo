@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Proyecto Flask{% endblock %}</title>
 
     <!-- CSS PROPIO -->
@@ -13,49 +14,116 @@
     <!-- reCAPTCHA -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
-<body>
+
+<body style="background: linear-gradient(135deg, #eef2ff, #e5e7eb); min-height:100vh;">
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container">
-    <a class="navbar-brand" href="{{ url_for('main.welcome') }}">Flask App</a>
+    <a class="navbar-brand fw-bold" href="{{ url_for('main.welcome') }}">Flask App</a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarNav">
+            data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
+
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('main.welcome') }}">Bienvenida</a>
+          <a class="nav-link {% if request.endpoint == 'main.welcome' %}active{% endif %}"
+             href="{{ url_for('main.welcome') }}">
+             Bienvenida
+          </a>
         </li>
+
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('main.home') }}">Home</a>
+          <a class="nav-link {% if request.endpoint == 'main.home' %}active{% endif %}"
+             href="{{ url_for('main.home') }}">
+             Home
+          </a>
         </li>
+
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('main.operaciones') }}">Calculadora</a>
+          <a class="nav-link {% if request.endpoint == 'main.operaciones' %}active{% endif %}"
+             href="{{ url_for('main.operaciones') }}">
+             Calculadora
+          </a>
         </li>
+
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('main.validacion') }}">Formulario</a>
+          <a class="nav-link {% if request.endpoint == 'main.validacion' %}active{% endif %}"
+             href="{{ url_for('main.validacion') }}">
+             Formulario
+          </a>
         </li>
+
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('main.error_page') }}">Errores</a>
+          <a class="nav-link {% if request.endpoint == 'main.error_page' %}active{% endif %}"
+             href="{{ url_for('main.error_page') }}">
+             Errores
+          </a>
         </li>
+
       </ul>
     </div>
   </div>
 </nav>
 
-<!-- CONTENIDO -->
-<main class="app-container">
-    {% block content %}{% endblock %}
+<!-- CONTENEDOR PRINCIPAL -->
+<main class="container py-4">
+
+    <!-- ========================= -->
+    <!-- BREADCRUMB -->
+    <!-- ========================= -->
+    {% if breadcrumb %}
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb m-0">
+    
+    <!-- Icono inicio -->
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('main.home') }}"
+         class="text-decoration-none d-flex align-items-center gap-1 text-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+             fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
+          <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5h1v6A1.5 1.5 0 0 0 4 15h3v-4h2v4h3a1.5 1.5 0 0 0 1.5-1.5v-6h1a.5.5 0 0 0 .354-.854z"/>
+        </svg>
+        Inicio
+      </a>
+    </li>
+
+    {% for item in breadcrumb %}
+      {% if not loop.first %}
+        {% if loop.last %}
+          <li class="breadcrumb-item active text-secondary fw-semibold"
+              aria-current="page">
+            {{ item.label }}
+          </li>
+        {% else %}
+          <li class="breadcrumb-item">
+            <a class="text-decoration-none text-secondary"
+               href="{{ item.url }}">
+              {{ item.label }}
+            </a>
+          </li>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+
+  </ol>
+</nav>
+{% endif %}
+
+    <!-- CONTENIDO -->
+    <div class="app-container">
+        {% block content %}{% endblock %}
+    </div>
+
 </main>
 
-
 <!-- FOOTER -->
-<footer class="bg-light text-center py-3 mt-5">
-    <small>© 2026 · Proyecto Flask · SQLite</small>
+<footer class="bg-light text-center py-3 mt-5 border-top">
+    <small class="text-muted">© 2026 · Proyecto Flask · SQLite</small>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

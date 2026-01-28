@@ -36,12 +36,24 @@ def init_db():
     )
     """)
 
+    # ✅ NUEVO: tabla para imágenes del carrusel
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS carousel_images (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        filename TEXT NOT NULL,
+        uploaded_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
     conn.commit()
     conn.close()
 
 def create_app():
     app = Flask(__name__)
-    app.config["SECRET_KEY"] = "6LehvUQsAAAAANusKcHRfF0w5DkX0L1JYl8Ae28Q"  # puedes dejarla así por ahora
+    app.config["SECRET_KEY"] = "6LehvUQsAAAAANusKcHRfF0w5DkX0L1JYl8Ae28Q"
+
+    # ✅ NUEVO: carpeta donde se guardan las imágenes subidas
+    app.config["UPLOAD_FOLDER"] = os.path.join(app.static_folder, "uploads")
 
     init_db()
 
