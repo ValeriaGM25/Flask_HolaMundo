@@ -5,7 +5,9 @@
 {% block content %}
 <div class="container">
 
-  <!-- Header -->
+  <!-- ========================= -->
+  <!-- HEADER -->
+  <!-- ========================= -->
   <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
     <div>
       <h1 class="m-0">Python Flask</h1>
@@ -22,10 +24,9 @@
   <!-- CARRUSEL -->
   <!-- ========================= -->
   <div class="card shadow-sm mb-4 overflow-hidden">
-    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-      <div>
-        <div class="text-muted small">Tus imágenes fijas + las que subas</div>
-      </div>
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span class="text-muted small">Carrusel de imágenes</span>
       <span class="badge text-bg-dark">
         Total: {{ 3 + (carousel_images|length if carousel_images else 0) }}
       </span>
@@ -33,60 +34,54 @@
 
     <div class="card-body p-0">
       <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
-
         <div class="carousel-inner">
 
-          <!-- Slides fijas (tuyas) -->
+          <!-- Slides fijas -->
           <div class="carousel-item active">
             <img src="{{ url_for('static', filename='img/slide1.jpeg') }}"
                  class="d-block w-100"
-                 alt="Slide 1"
-                 style="max-height: 360px; object-fit: cover;">
+                 style="max-height:360px; object-fit:cover;">
           </div>
 
           <div class="carousel-item">
             <img src="{{ url_for('static', filename='img/slide2.jpg') }}"
                  class="d-block w-100"
-                 alt="Slide 2"
-                 style="max-height: 360px; object-fit: cover;">
+                 style="max-height:360px; object-fit:cover;">
           </div>
 
           <div class="carousel-item">
             <img src="{{ url_for('static', filename='img/slide3.jpg') }}"
                  class="d-block w-100"
-                 alt="Slide 3"
-                 style="max-height: 360px; object-fit: cover;">
+                 style="max-height:360px; object-fit:cover;">
           </div>
 
-          <!-- ✅ Slides subidas (BD) -->
+          <!-- Slides desde BD -->
           {% if carousel_images %}
             {% for img in carousel_images %}
               <div class="carousel-item">
                 <img src="{{ url_for('static', filename='uploads/' ~ img[1]) }}"
                      class="d-block w-100"
-                     alt="Imagen subida {{ img[0] }}"
-                     style="max-height: 360px; object-fit: cover;">
+                     style="max-height:360px; object-fit:cover;">
               </div>
             {% endfor %}
           {% endif %}
-
         </div>
 
         <button class="carousel-control-prev" type="button"
                 data-bs-target="#carouselExample" data-bs-slide="prev">
           <span class="carousel-control-prev-icon"></span>
-          <span class="visually-hidden">Anterior</span>
         </button>
 
         <button class="carousel-control-next" type="button"
                 data-bs-target="#carouselExample" data-bs-slide="next">
           <span class="carousel-control-next-icon"></span>
-          <span class="visually-hidden">Siguiente</span>
         </button>
       </div>
     </div>
 
-    <!-- ✅ Subir imagen -->
+    <!-- ========================= -->
+    <!-- SUBIR IMAGEN -->
+    <!-- ========================= -->
     <div class="card-body border-top">
       <form method="POST"
             action="{{ url_for('main.upload_slide') }}"
@@ -96,44 +91,44 @@
         <div class="col-12 col-md-8">
           <input type="file"
                  name="slide"
+                 id="slideInput"
                  class="form-control"
                  accept="image/png, image/jpeg, image/jpg, image/webp"
                  required>
+
           <small class="text-muted">
-            Formatos permitidos: JPG, JPEG, PNG, WEBP. (Recomendado &lt; 2MB)
+            Formatos permitidos: JPG, JPEG, PNG, WEBP
           </small>
+
+          <!-- Advertencias -->
+          <div id="slideError" class="text-danger small mt-1 d-none">
+            ❌ Archivo no permitido. Solo imágenes.
+          </div>
+
+          <div id="slideOk" class="text-success small mt-1 d-none">
+            ✅ Archivo válido.
+          </div>
         </div>
 
         <div class="col-12 col-md-4 d-grid">
-          <button class="btn btn-success" type="submit">
-            Subir imagen al carrusel
+          <button class="btn btn-success" type="submit" id="btnSubirSlide">
+            Subir imagen
           </button>
         </div>
       </form>
-
-      {% if carousel_images and carousel_images|length > 0 %}
-        <div class="alert alert-light border mt-3 mb-0">
-          <strong>Tip:</strong> si subiste una imagen revisa que exista!!!
-        </div>
-      {% endif %}
     </div>
   </div>
 
   <!-- ========================= -->
-  <!-- FORMULARIO reCAPTCHA -->
+  <!-- reCAPTCHA -->
   <!-- ========================= -->
   <div class="card mb-4 shadow-sm">
     <div class="card-body">
-      <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
-        <div>
-          <h5 class="card-title mb-1">Selecciona correctamente</h5>
-          <div class="text-muted small">Esto guarda un registro si el reCAPTCHA es válido.</div>
-        </div>
-      </div>
+      <h5 class="card-title">Verificación</h5>
 
-      <form method="POST" class="mt-3">
+      <form method="POST">
         <div class="g-recaptcha" data-sitekey="{{ site_key }}"></div>
-        <button class="btn btn-primary mt-3" type="submit">Enviar</button>
+        <button class="btn btn-primary mt-3">Enviar</button>
       </form>
 
       {% if mensaje %}
@@ -148,46 +143,76 @@
   <!-- ========================= -->
   <!-- TABLA -->
   <!-- ========================= -->
-  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-    <h2 class="m-0">Datos guardados</h2>
-    <span class="badge text-bg-secondary">Total: {{ registros|length }}</span>
-  </div>
+  <h2 class="mb-2">Datos guardados</h2>
 
-  <div class="table-responsive mb-4">
+  <div class="table-responsive">
     <table class="table table-bordered table-striped align-middle">
       <thead class="table-dark">
         <tr>
-          <th style="width: 70px;">#</th>
+          <th>#</th>
           <th>Nombre</th>
           <th>Mensaje</th>
-          <th style="width: 120px;">Acción</th>
+          <th>Acción</th>
         </tr>
       </thead>
-
       <tbody>
         {% for r in registros %}
-          <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ r[1] }}</td>
-            <td>{{ r[2] }}</td>
-            <td>
-              <form method="POST"
-                    action="{{ url_for('main.eliminar_registro', id=r[0]) }}"
-                    onsubmit="return confirm('¿Seguro que deseas eliminar este registro?');">
-                <button class="btn-app btn-app-danger">Eliminar</button>
-              </form>
-            </td>
-          </tr>
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ r[1] }}</td>
+          <td>{{ r[2] }}</td>
+          <td>
+            <form method="POST"
+                  action="{{ url_for('main.eliminar_registro', id=r[0]) }}"
+                  onsubmit="return confirm('¿Eliminar registro?');">
+              <button class="btn btn-sm btn-danger">Eliminar</button>
+            </form>
+          </td>
+        </tr>
         {% else %}
-          <tr>
-            <td colspan="4" class="text-center text-muted">
-              No hay registros aún.
-            </td>
-          </tr>
+        <tr>
+          <td colspan="4" class="text-center text-muted">
+            No hay registros aún
+          </td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
 </div>
+
+<!-- ========================= -->
+<!-- VALIDACIÓN JS -->
+<!-- ========================= -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const input = document.getElementById("slideInput");
+  const error = document.getElementById("slideError");
+  const ok = document.getElementById("slideOk");
+  const btn = document.getElementById("btnSubirSlide");
+
+  const allowed = ["image/jpeg", "image/png", "image/webp"];
+
+  btn.disabled = true;
+
+  input.addEventListener("change", () => {
+    if (!input.files.length) return;
+
+    const file = input.files[0];
+
+    if (!allowed.includes(file.type)) {
+      error.classList.remove("d-none");
+      ok.classList.add("d-none");
+      btn.disabled = true;
+    } else {
+      error.classList.add("d-none");
+      ok.classList.remove("d-none");
+      btn.disabled = false;
+    }
+  });
+});
+</script>
+
 {% endblock %}

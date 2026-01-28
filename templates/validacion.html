@@ -8,27 +8,56 @@
     <h2>Formulario de Registro</h2>
     <p style="color:#6b7280;">Completa todos los campos requeridos</p>
 
-    <form method="POST" enctype="multipart/form-data">
+    <!-- ========================= -->
+    <!-- ESTILOS VALIDACIÓN -->
+    <!-- ========================= -->
+    <style>
+        input.is-invalid, textarea.is-invalid, select.is-invalid {
+            border: 1.5px solid #dc2626 !important;
+        }
+
+        input.is-valid, textarea.is-valid, select.is-valid {
+            border: 1.5px solid #16a34a !important;
+        }
+
+        .field-hint {
+            font-size: .82rem;
+            margin-top: .35rem;
+            display: block;
+        }
+
+        .field-hint.d-none {
+            display: none !important;
+        }
+    </style>
+
+    <form method="POST" enctype="multipart/form-data" id="formRegistro">
         <div class="form-grid">
 
+            <!-- NOMBRE -->
             <div class="form-group">
                 <label>Nombre completo</label>
                 <div class="input-icon">
-                    <input type="text" name="nombre" required>
+                    <input type="text" name="nombre" id="nombre" required>
                 </div>
+                <small class="field-hint text-danger d-none" id="error-nombre">
+                    ❌ Solo letras y espacios (sin números ni símbolos)
+                </small>
             </div>
 
+            <!-- FECHA -->
             <div class="form-group">
                 <label>Fecha de nacimiento</label>
                 <div class="input-icon">
-                    <input type="date" name="fecha_nacimiento" required>
+                    <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required>
                 </div>
             </div>
 
+            <!-- SEXO -->
             <div class="form-group">
                 <label>Sexo</label>
                 <div class="input-icon">
-                    <select name="sexo" required>
+                    <select name="sexo" id="sexo" required>
                         <option value="">Seleccionar</option>
                         <option>Femenino</option>
                         <option>Masculino</option>
@@ -37,39 +66,54 @@
                 </div>
             </div>
 
+            <!-- TELÉFONO -->
             <div class="form-group">
                 <label>Teléfono</label>
                 <div class="input-icon">
-                    <input type="tel" name="telefono" pattern="[0-9]{10}" required>
+                    <input type="tel" name="telefono" id="telefono" maxlength="10" required>
                 </div>
+                <small class="field-hint text-danger d-none" id="error-telefono">
+                    ❌ Solo números (10 dígitos)
+                </small>
             </div>
 
+            <!-- CORREO -->
             <div class="form-group">
                 <label>Correo electrónico</label>
                 <div class="input-icon">
-                    <input type="email" name="correo" required>
+                    <input type="email" name="correo" id="correo" required>
                 </div>
+                <small class="field-hint text-danger d-none" id="error-correo">
+                    ❌ Formato de correo inválido
+                </small>
             </div>
 
+            <!-- CONFIRMAR CORREO -->
             <div class="form-group">
                 <label>Confirmar correo</label>
                 <div class="input-icon">
-                    <input type="email" name="correo2" required>
+                    <input type="email" name="correo2" id="correo2" required>
                 </div>
+                <small class="field-hint text-danger d-none" id="error-correo2">
+                    ❌ Los correos no coinciden
+                </small>
             </div>
 
+            <!-- DIRECCIÓN -->
             <div class="form-group full">
                 <label>Dirección</label>
                 <div class="input-icon">
-                    <textarea name="direccion" required></textarea>
+                    <textarea name="direccion" id="direccion" required></textarea>
                 </div>
             </div>
 
+            <!-- FOTO -->
             <div class="form-group">
                 <label>Fotografía</label>
                 <input
                     type="file"
                     name="foto"
+                    id="foto"
                     accept="image/png, image/jpeg, image/jpg, image/webp"
                     required>
                 <small style="color:#6b7280;">
@@ -77,15 +121,18 @@
                 </small>
             </div>
 
+            <!-- OBSERVACIONES -->
             <div class="form-group full">
                 <label>Observaciones</label>
-                <textarea name="observaciones"></textarea>
+                <textarea name="observaciones" id="observaciones"></textarea>
             </div>
 
         </div>
 
         <div class="form-footer">
-            <button type="submit" class="btn btn-primary">Guardar</button>
+            <button type="submit" class="btn btn-primary" id="btnGuardar">
+                Guardar
+            </button>
         </div>
     </form>
 
@@ -126,4 +173,95 @@
     </table>
 
 </div>
+
+<!-- ========================= -->
+<!-- JS VALIDACIONES -->
+<!-- ========================= -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("formRegistro");
+
+    const nombre = document.getElementById("nombre");
+    const telefono = document.getElementById("telefono");
+    const correo = document.getElementById("correo");
+    const correo2 = document.getElementById("correo2");
+    const btnGuardar = document.getElementById("btnGuardar");
+
+    const errorNombre = document.getElementById("error-nombre");
+    const errorTelefono = document.getElementById("error-telefono");
+    const errorCorreo = document.getElementById("error-correo");
+    const errorCorreo2 = document.getElementById("error-correo2");
+
+    const regexNombre = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+    const regexTelefono = /^[0-9]{10}$/;
+    const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function setValid(el, ok) {
+        el.classList.toggle("is-valid", ok);
+        el.classList.toggle("is-invalid", !ok);
+    }
+
+    function validateNombre() {
+        const value = nombre.value.trim();
+        const ok = value.length > 0 && regexNombre.test(value);
+        setValid(nombre, ok);
+        errorNombre.classList.toggle("d-none", ok || value === "");
+        return ok;
+    }
+
+    function validateTelefono() {
+        // bloquea cualquier cosa que no sea número
+        telefono.value = telefono.value.replace(/\D/g, "");
+        const ok = regexTelefono.test(telefono.value);
+        setValid(telefono, ok);
+        errorTelefono.classList.toggle("d-none", ok || telefono.value === "");
+        return ok;
+    }
+
+    function validateCorreo() {
+        const value = correo.value.trim();
+        const ok = regexCorreo.test(value);
+        setValid(correo, ok);
+        errorCorreo.classList.toggle("d-none", ok || value === "");
+        return ok;
+    }
+
+    function validateCorreo2() {
+        const v1 = correo.value.trim();
+        const v2 = correo2.value.trim();
+        const ok = v2.length > 0 && v1 === v2;
+        setValid(correo2, ok);
+        errorCorreo2.classList.toggle("d-none", ok || v2 === "");
+        return ok;
+    }
+
+    function validateAll() {
+        const ok =
+            validateNombre() &&
+            validateTelefono() &&
+            validateCorreo() &&
+            validateCorreo2();
+
+        // Si quieres bloquear el botón cuando haya errores:
+        btnGuardar.disabled = !ok;
+        return ok;
+    }
+
+    // eventos
+    nombre.addEventListener("input", validateAll);
+    telefono.addEventListener("input", validateAll);
+    correo.addEventListener("input", validateAll);
+    correo2.addEventListener("input", validateAll);
+
+    // Validación al cargar (por si el navegador autocompleta)
+    validateAll();
+
+    // Validación final al enviar
+    form.addEventListener("submit", (e) => {
+        if (!validateAll()) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
 {% endblock %}
