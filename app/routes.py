@@ -10,6 +10,8 @@ import uuid
 from werkzeug.utils import secure_filename
 from flask import current_app
 from . import get_db   
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import jsonify
 
 main_routes = Blueprint("main", __name__)
 
@@ -353,3 +355,444 @@ def error_404(e):
 @main_routes.app_errorhandler(500)
 def error_500(e):
     return render_template("error.html", error="500 - Error interno del servidor"), 500
+
+#-------------------------------
+#CRUD
+#-------------------------------
+from datetime import date
+from flask import render_template, request, redirect, url_for, flash
+
+@main_routes.route("/crud", methods=["GET", "POST"])
+def crud():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # --------------------------
+    # CREAR (POST)
+    # --------------------------
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        mensaje = request.form.get("mensaje", "").strip()
+        categoria = request.form.get("categoria", "").strip()
+        estado = request.form.get("estado", "activo").strip()
+
+        # numéricos (con default)
+        try:
+            precio = float(request.form.get("precio", "0") or 0)
+        except ValueError:
+            precio = -1
+
+        try:
+            stock = int(request.form.get("stock", "0") or 0)
+        except ValueError:
+            stock = -1
+
+        if not nombre or not mensaje:
+            flash("❌ Nombre y Mensaje son obligatorios.", "danger")
+            conn.close()
+            return redirect(url_for("main.crud"))
+
+        if precio < 0:
+            flash("❌ Precio inválido.", "danger")
+            conn.close()
+            return redirect(url_for("main.crud"))
+
+        if stock < 0:
+            flash("❌ Stock inválido.", "danger")
+            conn.close()
+            return redirect(url_for("main.crud"))
+
+        created_at = request.form.get("created_at") or date.today().isoformat()
+
+        cursor.execute("""
+            INSERT INTO registros (nombre, mensaje, categoria, precio, stock, estado, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (nombre, mensaje, categoria, precio, stock, estado, created_at))
+        conn.commit()
+        conn.close()
+        flash("✅ Registro creado correctamente.", "success")
+        return redirect(url_for("main.crud"))
+
+    # --------------------------
+    # FILTROS (GET) COMPLEJOS
+    # --------------------------
+    q = request.args.get("q", "").strip()
+    categoria = request.args.get("categoria", "").strip()
+    estado = request.args.get("estado", "").strip()
+
+    precio_min = request.args.get("precio_min", "").strip()
+    precio_max = request.args.get("precio_max", "").strip()
+
+    stock_min = request.args.get("stock_min", "").strip()
+    stock_max = request.args.get("stock_max", "").strip()
+
+    fecha_desde = request.args.get("fecha_desde", "").strip()
+    fecha_hasta = request.args.get("fecha_hasta", "").strip()
+
+    orden = request.args.get("orden", "recientes")  # recientes, precio_asc, precio_desc, nombre_asc
+
+    where = []
+    params = []
+
+    # texto libre sobre nombre o mensaje
+    if q:
+        where.append("(nombre LIKE ? OR mensaje LIKE ?)")
+        params.extend([f"%{q}%", f"%{q}%"])
+
+    if categoria:
+        where.append("categoria = ?")
+        params.append(categoria)
+
+    if estado:
+        where.append("estado = ?")
+        params.append(estado)
+
+    # rangos numéricos
+    if precio_min:
+        where.append("precio >= ?")
+        params.append(float(precio_min))
+    if precio_max:
+        where.append("precio <= ?")
+        params.append(float(precio_max))
+
+    if stock_min:
+        where.append("stock >= ?")
+        params.append(int(stock_min))
+    if stock_max:
+        where.append("stock <= ?")
+        params.append(int(stock_max))
+
+    # rango de fechas (YYYY-MM-DD)
+    if fecha_desde:
+        where.append("created_at >= ?")
+        params.append(fecha_desde)
+    if fecha_hasta:
+        where.append("created_at <= ?")
+        params.append(fecha_hasta)
+
+    sql = """
+        SELECT id, nombre, mensaje, categoria, precio, stock, estado, created_at
+        FROM registros
+    """
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+
+    # orden
+    if orden == "precio_asc":
+        sql += " ORDER BY precio ASC"
+    elif orden == "precio_desc":
+        sql += " ORDER BY precio DESC"
+    elif orden == "nombre_asc":
+        sql += " ORDER BY nombre ASC"
+    else:
+        sql += " ORDER BY id DESC"
+
+    cursor.execute(sql, params)
+    registros = cursor.fetchall()
+
+    # para llenar select de categorías disponibles
+    cursor.execute("SELECT DISTINCT categoria FROM registros WHERE categoria IS NOT NULL AND categoria <> '' ORDER BY categoria")
+    categorias_db = [r[0] for r in cursor.fetchall()]
+
+    conn.close()
+
+    breadcrumb = [
+        {"label": "Bienvenida", "url": url_for("main.welcome")},
+        {"label": "Home", "url": url_for("main.home")},
+        {"label": "CRUD", "url": url_for("main.crud")}
+    ]
+
+    return render_template(
+        "crud.html",
+        registros=registros,
+        breadcrumb=breadcrumb,
+        # filtros
+        q=q, categoria=categoria, estado=estado,
+        precio_min=precio_min, precio_max=precio_max,
+        stock_min=stock_min, stock_max=stock_max,
+        fecha_desde=fecha_desde, fecha_hasta=fecha_hasta,
+        orden=orden,
+        categorias_db=categorias_db
+    )
+
+from datetime import date
+from flask import render_template, request, redirect, url_for, flash
+
+@main_routes.route("/crud/editar/<int:id>", methods=["GET", "POST"])
+def crud_editar(id):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Traer registro
+    cursor.execute("""
+        SELECT id, nombre, mensaje, categoria, precio, stock, estado, created_at
+        FROM registros
+        WHERE id = ?
+    """, (id,))
+    registro = cursor.fetchone()
+
+    if not registro:
+        conn.close()
+        flash("❌ Registro no encontrado.", "danger")
+        return redirect(url_for("main.crud"))
+
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        mensaje = request.form.get("mensaje", "").strip()
+        categoria = request.form.get("categoria", "").strip()
+        estado = request.form.get("estado", "activo").strip()
+        created_at = request.form.get("created_at") or (registro[7] or date.today().isoformat())
+
+        # numéricos
+        try:
+            precio = float(request.form.get("precio", "0") or 0)
+        except ValueError:
+            precio = -1
+
+        try:
+            stock = int(request.form.get("stock", "0") or 0)
+        except ValueError:
+            stock = -1
+
+        # validaciones básicas
+        if not nombre or not mensaje:
+            flash("❌ Nombre y Mensaje son obligatorios.", "danger")
+            conn.close()
+            return redirect(url_for("main.crud_editar", id=id))
+
+        if precio < 0:
+            flash("❌ Precio inválido.", "danger")
+            conn.close()
+            return redirect(url_for("main.crud_editar", id=id))
+
+        if stock < 0:
+            flash("❌ Stock inválido.", "danger")
+            conn.close()
+            return redirect(url_for("main.crud_editar", id=id))
+
+        cursor.execute("""
+            UPDATE registros
+            SET nombre = ?, mensaje = ?, categoria = ?, precio = ?, stock = ?, estado = ?, created_at = ?
+            WHERE id = ?
+        """, (nombre, mensaje, categoria, precio, stock, estado, created_at, id))
+
+        conn.commit()
+        conn.close()
+
+        flash("✅ Registro actualizado.", "success")
+        return redirect(url_for("main.crud"))
+
+    conn.close()
+
+    breadcrumb = [
+        {"label": "Bienvenida", "url": url_for("main.welcome")},
+        {"label": "CRUD", "url": url_for("main.crud")},
+        {"label": f"Editar #{registro[0]}", "url": url_for("main.crud_editar", id=id)}
+    ]
+
+    return render_template(
+        "crud_editar.html",
+        registro=registro,
+        breadcrumb=breadcrumb
+    )
+
+
+@main_routes.route("/crud/eliminar/<int:id>", methods=["POST"])
+def crud_eliminar(id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM registros WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+    flash("🗑️ Registro eliminado.", "success")
+    return redirect(url_for("main.crud"))
+
+
+# -------------------------------
+# API (FETCH) - LISTAR CON FILTROS
+# -------------------------------
+@main_routes.route("/api/registros", methods=["GET"])
+def api_registros_listar():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # mismos filtros que tu /crud
+    q = request.args.get("q", "").strip()
+    categoria = request.args.get("categoria", "").strip()
+    estado = request.args.get("estado", "").strip()
+
+    precio_min = request.args.get("precio_min", "").strip()
+    precio_max = request.args.get("precio_max", "").strip()
+
+    stock_min = request.args.get("stock_min", "").strip()
+    stock_max = request.args.get("stock_max", "").strip()
+
+    fecha_desde = request.args.get("fecha_desde", "").strip()
+    fecha_hasta = request.args.get("fecha_hasta", "").strip()
+
+    orden = request.args.get("orden", "recientes")
+
+    where = []
+    params = []
+
+    if q:
+        where.append("(nombre LIKE ? OR mensaje LIKE ?)")
+        params.extend([f"%{q}%", f"%{q}%"])
+
+    if categoria:
+        where.append("categoria = ?")
+        params.append(categoria)
+
+    if estado:
+        where.append("estado = ?")
+        params.append(estado)
+
+    # rangos numéricos con try por si mandan basura
+    try:
+        if precio_min:
+            where.append("precio >= ?")
+            params.append(float(precio_min))
+        if precio_max:
+            where.append("precio <= ?")
+            params.append(float(precio_max))
+    except ValueError:
+        conn.close()
+        return jsonify({"ok": False, "error": "precio_min/precio_max inválido"}), 400
+
+    try:
+        if stock_min:
+            where.append("stock >= ?")
+            params.append(int(stock_min))
+        if stock_max:
+            where.append("stock <= ?")
+            params.append(int(stock_max))
+    except ValueError:
+        conn.close()
+        return jsonify({"ok": False, "error": "stock_min/stock_max inválido"}), 400
+
+    if fecha_desde:
+        where.append("created_at >= ?")
+        params.append(fecha_desde)
+    if fecha_hasta:
+        where.append("created_at <= ?")
+        params.append(fecha_hasta)
+
+    sql = """
+        SELECT id, nombre, mensaje, categoria, precio, stock, estado, created_at
+        FROM registros
+    """
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+
+    if orden == "precio_asc":
+        sql += " ORDER BY precio ASC"
+    elif orden == "precio_desc":
+        sql += " ORDER BY precio DESC"
+    elif orden == "nombre_asc":
+        sql += " ORDER BY nombre ASC"
+    else:
+        sql += " ORDER BY id DESC"
+
+    cursor.execute(sql, params)
+    rows = cursor.fetchall()
+    conn.close()
+
+    items = [{
+        "id": r[0],
+        "nombre": r[1],
+        "mensaje": r[2],
+        "categoria": r[3],
+        "precio": r[4],
+        "stock": r[5],
+        "estado": r[6],
+        "created_at": r[7],
+    } for r in rows]
+
+    return jsonify({"ok": True, "items": items})
+
+
+# -------------------------------
+# API (FETCH) - CREAR
+# -------------------------------
+@main_routes.route("/api/registros", methods=["POST"])
+def api_registros_crear():
+    body = request.get_json(silent=True) or {}
+
+    nombre = (body.get("nombre") or "").strip()
+    mensaje = (body.get("mensaje") or "").strip()
+    categoria = (body.get("categoria") or "").strip()
+    estado = (body.get("estado") or "activo").strip()
+    created_at = (body.get("created_at") or date.today().isoformat()).strip()
+
+    try:
+        precio = float(body.get("precio", 0) or 0)
+        stock = int(body.get("stock", 0) or 0)
+    except ValueError:
+        return jsonify({"ok": False, "error": "Precio/Stock inválidos"}), 400
+
+    if not nombre or not mensaje:
+        return jsonify({"ok": False, "error": "Nombre y Mensaje son obligatorios"}), 400
+    if precio < 0 or stock < 0:
+        return jsonify({"ok": False, "error": "Precio/Stock no pueden ser negativos"}), 400
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO registros (nombre, mensaje, categoria, precio, stock, estado, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (nombre, mensaje, categoria, precio, stock, estado, created_at))
+    conn.commit()
+    new_id = cursor.lastrowid
+    conn.close()
+
+    return jsonify({"ok": True, "id": new_id})
+
+
+# -------------------------------
+# API (FETCH) - ELIMINAR
+# -------------------------------
+@main_routes.route("/api/registros/<int:id>", methods=["DELETE"])
+def api_registros_eliminar(id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM registros WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True})
+
+
+# -------------------------------
+# API (FETCH) - EDITAR (PUT) (opcional recomendado)
+# -------------------------------
+@main_routes.route("/api/registros/<int:id>", methods=["PUT"])
+def api_registros_editar(id):
+    body = request.get_json(silent=True) or {}
+
+    nombre = (body.get("nombre") or "").strip()
+    mensaje = (body.get("mensaje") or "").strip()
+    categoria = (body.get("categoria") or "").strip()
+    estado = (body.get("estado") or "activo").strip()
+    created_at = (body.get("created_at") or date.today().isoformat()).strip()
+
+    try:
+        precio = float(body.get("precio", 0) or 0)
+        stock = int(body.get("stock", 0) or 0)
+    except ValueError:
+        return jsonify({"ok": False, "error": "Precio/Stock inválidos"}), 400
+
+    if not nombre or not mensaje:
+        return jsonify({"ok": False, "error": "Nombre y Mensaje son obligatorios"}), 400
+    if precio < 0 or stock < 0:
+        return jsonify({"ok": False, "error": "Precio/Stock no pueden ser negativos"}), 400
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE registros
+        SET nombre = ?, mensaje = ?, categoria = ?, precio = ?, stock = ?, estado = ?, created_at = ?
+        WHERE id = ?
+    """, (nombre, mensaje, categoria, precio, stock, estado, created_at, id))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"ok": True})

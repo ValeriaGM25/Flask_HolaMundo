@@ -299,49 +299,173 @@ textarea {
 }
 
 /* Breadcrumb estilizado pero compacto */
-.breadcrumb {
-    font-size: 0.78rem;
-    padding: 0;
-    margin: 0.4rem 0 0.9rem 0;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
+/* --- Breadcrumb pill (DailyUI style) --- */
+.crumb-wrap { display: flex; justify-content: flex-start; }
+
+.crumb{
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, .10);
+  border: 1px solid rgba(15, 23, 42, .06);
 }
 
-.breadcrumb-item {
-    display: flex;
-    align-items: center;
+.crumb-item a,
+.crumb-item.active{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: .92rem;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-/* Separador elegante */
-.breadcrumb-item + .breadcrumb-item::before {
-    content: "›";
-    color: #9ca3af;
-    font-weight: 600;
-    margin: 0 0.35rem;
+.crumb-item a{
+  color: #64748b;
+  background: #f8fafc;
+  transition: .15s ease;
 }
 
-/* Links */
-.breadcrumb a {
-    color: #6b7280;
-    text-decoration: none;
-    padding: 2px 6px;
-    border-radius: 6px;
-    transition: background 0.2s ease, color 0.2s ease;
+.crumb-item a:hover{
+  color: #2563eb;
+  background: #eef2ff;
 }
 
-.breadcrumb a:hover {
-    background: #eef2ff;
-    color: #2563eb;
+.crumb-item.active{
+  color: #0f172a;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
 }
 
-/* Página actual */
-.breadcrumb-item.active {
-    color: #1f2937;
-    font-weight: 600;
-    background: linear-gradient(135deg, #e0e7ff, #eef2ff);
-    padding: 2px 8px;
-    border-radius: 999px; /* tipo badge */
+.crumb-ico{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crumb > .crumb-item:not(:first-child)::before{
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(100,116,139,.35);
+  margin-right: 8px;
+}
+
+/* ====== BASE ====== */
+.app-bg{
+  background: radial-gradient(1200px 600px at 20% 0%, #eef2ff 0%, transparent 60%),
+              radial-gradient(1000px 500px at 90% 20%, #e0f2fe 0%, transparent 55%),
+              linear-gradient(135deg, #eef2ff, #e5e7eb);
+  min-height: 100vh;
+}
+
+.brand-accent{ color:#60a5fa; }
+
+/* ====== NAVBAR (glass) ====== */
+.nav-glass{
+  background: rgba(17, 24, 39, .86);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.navbar .nav-link{
+  color: rgba(255,255,255,.86) !important;
+  border-radius: 999px;
+  padding: .45rem .8rem;
+}
+.navbar .nav-link:hover{
+  background: rgba(255,255,255,.08);
+}
+.navbar .nav-link.active{
+  background: rgba(96,165,250,.18);
+  color: #fff !important;
+}
+
+/* ====== BREADCRUMB pill ====== */
+.crumb-pill{
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .45rem .6rem;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.crumb-pill__item{
+  display: inline-flex;
+  align-items: center;
+  font-size: .88rem;
+  color: #6b7280;
+}
+
+.crumb-pill__link{
+  text-decoration: none;
+  color: #6b7280;
+  padding: .25rem .55rem;
+  border-radius: 999px;
+}
+.crumb-pill__link:hover{
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.crumb-pill__item + .crumb-pill__item::before{
+  content: "›";
+  color: #9ca3af;
+  margin: 0 .15rem;
+  font-weight: 600;
+}
+
+.crumb-pill__item.active{
+  color: #111827;
+  font-weight: 700;
+  padding: .25rem .55rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  border: 1px solid rgba(99,102,241,.18);
+}
+
+/* ====== CARDS / CONTENEDORES ====== */
+.card{
+  border: 1px solid rgba(0,0,0,.06) !important;
+  border-radius: 16px !important;
+}
+
+.shadow-soft{
+  box-shadow: 0 18px 50px rgba(0,0,0,.08) !important;
+}
+
+/* ====== BOTONES ====== */
+.btn{
+  border-radius: 12px !important;
+}
+.btn-primary{
+  background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+  border: none !important;
+}
+.btn-primary:hover{
+  filter: brightness(.98);
+}
+
+/* ====== FOOTER ====== */
+.footer-soft{
+  background: rgba(255,255,255,.75);
+  border-top: 1px solid rgba(0,0,0,.06);
+  backdrop-filter: blur(8px);
 }
 

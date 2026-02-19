@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Proyecto Flask{% endblock %}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Proyecto Flask{% endblock %}</title>
 
-    <!-- CSS PROPIO -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- BOOTSTRAP -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- CSS propio -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
-    <!-- reCAPTCHA -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!-- reCAPTCHA -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
-<body style="background: linear-gradient(135deg, #eef2ff, #e5e7eb); min-height:100vh;">
+<body class="app-bg">
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-dark nav-glass shadow-sm">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="{{ url_for('main.welcome') }}">Flask App</a>
+    <a class="navbar-brand fw-bold" href="{{ url_for('main.welcome') }}">
+      Python<span class="brand-accent">-Flask</span>
+    </a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
@@ -28,102 +30,67 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-
+      <ul class="navbar-nav ms-auto gap-lg-1">
         <li class="nav-item">
           <a class="nav-link {% if request.endpoint == 'main.welcome' %}active{% endif %}"
-             href="{{ url_for('main.welcome') }}">
-             Bienvenida
-          </a>
+             href="{{ url_for('main.welcome') }}">Bienvenida</a>
         </li>
-
         <li class="nav-item">
           <a class="nav-link {% if request.endpoint == 'main.home' %}active{% endif %}"
-             href="{{ url_for('main.home') }}">
-             Home
-          </a>
+             href="{{ url_for('main.home') }}">Home</a>
         </li>
-
         <li class="nav-item">
           <a class="nav-link {% if request.endpoint == 'main.operaciones' %}active{% endif %}"
-             href="{{ url_for('main.operaciones') }}">
-             Calculadora
-          </a>
+             href="{{ url_for('main.operaciones') }}">Calculadora</a>
         </li>
-
         <li class="nav-item">
           <a class="nav-link {% if request.endpoint == 'main.validacion' %}active{% endif %}"
-             href="{{ url_for('main.validacion') }}">
-             Formulario
-          </a>
+             href="{{ url_for('main.validacion') }}">Formulario</a>
         </li>
-
+        <li class="nav-item">
+        <a class="nav-link {% if request.endpoint in ['main.crud', 'main.crud_editar'] %}active{% endif %}"
+         href="{{ url_for('main.crud') }}">CRUD</a>
+        </li>
         <li class="nav-item">
           <a class="nav-link {% if request.endpoint == 'main.error_page' %}active{% endif %}"
-             href="{{ url_for('main.error_page') }}">
-             Errores
-          </a>
+             href="{{ url_for('main.error_page') }}">Errores</a>
         </li>
-
       </ul>
     </div>
   </div>
 </nav>
 
-<!-- CONTENEDOR PRINCIPAL -->
+<!-- CONTENIDO -->
 <main class="container py-4">
 
-    <!-- ========================= -->
-    <!-- BREADCRUMB -->
-    <!-- ========================= -->
-    {% if breadcrumb %}
-<nav aria-label="breadcrumb" class="mb-4">
-  <ol class="breadcrumb m-0">
-    
-    <!-- Icono inicio -->
-    <li class="breadcrumb-item">
-      <a href="{{ url_for('main.home') }}"
-         class="text-decoration-none d-flex align-items-center gap-1 text-primary">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-             fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
-          <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5h1v6A1.5 1.5 0 0 0 4 15h3v-4h2v4h3a1.5 1.5 0 0 0 1.5-1.5v-6h1a.5.5 0 0 0 .354-.854z"/>
-        </svg>
-        Inicio
-      </a>
-    </li>
-
-    {% for item in breadcrumb %}
-      {% if not loop.first %}
+  <!-- Breadcrumb pill (3 niveles, blanco, sin barra negra) -->
+  {% if breadcrumb %}
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="crumb-pill m-0">
+      {% for item in breadcrumb %}
         {% if loop.last %}
-          <li class="breadcrumb-item active text-secondary fw-semibold"
-              aria-current="page">
-            {{ item.label }}
-          </li>
+          <li class="crumb-pill__item active" aria-current="page">{{ item.label }}</li>
         {% else %}
-          <li class="breadcrumb-item">
-            <a class="text-decoration-none text-secondary"
-               href="{{ item.url }}">
-              {{ item.label }}
+          <li class="crumb-pill__item">
+            <a href="{{ item.url }}" class="crumb-pill__link">
+              {% if loop.first %}🏠{% endif %} {{ item.label }}
             </a>
           </li>
         {% endif %}
-      {% endif %}
-    {% endfor %}
+      {% endfor %}
+    </ol>
+  </nav>
+  {% endif %}
 
-  </ol>
-</nav>
-{% endif %}
-
-    <!-- CONTENIDO -->
-    <div class="app-container">
-        {% block content %}{% endblock %}
-    </div>
-
+  <!-- CONTENIDO DE CADA PÁGINA -->
+  {% block content %}{% endblock %}
 </main>
 
 <!-- FOOTER -->
-<footer class="bg-light text-center py-3 mt-5 border-top">
+<footer class="footer-soft mt-5">
+  <div class="container py-4 text-center">
     <small class="text-muted">© 2026 · Proyecto Flask · SQLite</small>
+  </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

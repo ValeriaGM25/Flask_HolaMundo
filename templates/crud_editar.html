@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Editar registro{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h2 class="m-0">Editar registro #{{ registro[0] }}</h2>
+      <small class="text-muted">Actualiza categoría, precio, stock, estado y fecha</small>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('main.crud') }}">← Volver al CRUD</a>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, msg in messages %}
+        <div class="alert alert-{{ category }} mb-3">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <form method="POST" class="row g-2">
+
+        <div class="col-12 col-md-4">
+          <label class="form-label">Nombre</label>
+          <input class="form-control" name="nombre" value="{{ registro[1] }}" required>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label">Categoría</label>
+          <input class="form-control" name="categoria" value="{{ registro[3] or '' }}" placeholder="Ej: Ropa, Tech, Hogar">
+        </div>
+
+        <div class="col-6 col-md-2">
+          <label class="form-label">Precio</label>
+          <input class="form-control" name="precio" type="number" step="0.01" min="0" value="{{ registro[4] if registro[4] is not none else 0 }}">
+        </div>
+
+        <div class="col-6 col-md-2">
+          <label class="form-label">Stock</label>
+          <input class="form-control" name="stock" type="number" min="0" value="{{ registro[5] if registro[5] is not none else 0 }}">
+        </div>
+
+        <div class="col-12 col-md-3">
+          <label class="form-label">Estado</label>
+          <select class="form-select" name="estado">
+            <option value="activo" {% if (registro[6] or 'activo') == 'activo' %}selected{% endif %}>Activo</option>
+            <option value="inactivo" {% if registro[6] == 'inactivo' %}selected{% endif %}>Inactivo</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <label class="form-label">Fecha</label>
+          <input class="form-control" name="created_at" type="date" value="{{ registro[7] or '' }}">
+          <small class="text-muted">Si lo dejas vacío, se conserva.</small>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Mensaje / Descripción</label>
+          <input class="form-control" name="mensaje" value="{{ registro[2] }}" required>
+        </div>
+
+        <div class="col-12 d-flex gap-2 mt-2">
+          <button class="btn btn-primary">Guardar cambios</button>
+
+          <a class="btn btn-outline-secondary" href="{{ url_for('main.crud') }}">Cancelar</a>
+
+          <form method="POST" action="{{ url_for('main.crud_eliminar', id=registro[0]) }}"
+                onsubmit="return confirm('¿Eliminar este registro?');" class="ms-auto">
+            <button class="btn btn-outline-danger" type="submit">Eliminar</button>
+          </form>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

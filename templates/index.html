@@ -27,8 +27,8 @@
 
     <div class="card-header d-flex justify-content-between align-items-center">
       <span class="text-muted small">Carrusel de imágenes</span>
-      <span class="badge text-bg-dark">
-        Total: {{ 3 + (carousel_images|length if carousel_images else 0) }}
+      <span class="badge text-bg-dark" id="badgeSlides">
+      Total: {{ 3 + (carousel_images|length if carousel_images else 0) }}
       </span>
     </div>
 
@@ -95,6 +95,17 @@
                  class="form-control"
                  accept="image/png, image/jpeg, image/jpg, image/webp"
                  required>
+          <div id="slideAlert" class="alert alert-danger mt-2 d-none" role="alert"></div>
+          <div class="mt-2 d-none" id="slidePreviewWrap">
+          <div class="d-flex align-items-center justify-content-between">
+          <small class="text-muted">Vista previa:</small>
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnClearSlide">
+      Quitar
+    </button>
+  </div>
+  <img id="slidePreview" class="img-fluid mt-2 rounded-3 border" style="max-height:180px; object-fit:cover;" alt="preview">
+</div>
+
 
           <small class="text-muted">
             Formatos permitidos: JPG, JPEG, PNG, WEBP
@@ -187,30 +198,88 @@
 <!-- ========================= -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-
+  // ======= DOM =======
   const input = document.getElementById("slideInput");
-  const error = document.getElementById("slideError");
-  const ok = document.getElementById("slideOk");
   const btn = document.getElementById("btnSubirSlide");
 
-  const allowed = ["image/jpeg", "image/png", "image/webp"];
+  const errorBox = document.getElementById("slideError");
+  const errorMsg = document.getElementById("slideErrorMsg");
+  const okBox = document.getElementById("slideOk");
 
-  btn.disabled = true;
+  const previewImg = document.getElementById("slidePreview"); // opcional
 
+  // Si no existen, no hacemos nada
+  if (!input || !btn) return;
+
+  // ======= CONFIG =======
+  const allowedMime = ["image/jpeg", "image/png", "image/webp"];
+  const maxSizeMB = 2;
+  const maxBytes = maxSizeMB * 1024 * 1024;
+
+  // ======= Helpers =======
+  function showError(msg) {
+    if (errorMsg) errorMsg.textContent = msg;
+    errorBox?.classList.remove("d-none");
+    okBox?.classList.add("d-none");
+    btn.disabled = true;
+
+    if (previewImg) {
+      previewImg.src = "";
+      previewImg.classList.add("d-none");
+    }
+  }
+
+  function showOk() {
+    errorBox?.classList.add("d-none");
+    okBox?.classList.remove("d-none");
+    btn.disabled = false;
+  }
+
+  function resetState() {
+    errorBox?.classList.add("d-none");
+    okBox?.classList.add("d-none");
+    btn.disabled = true;
+
+    if (previewImg) {
+      previewImg.src = "";
+      previewImg.classList.add("d-none");
+    }
+  }
+
+  function setPreview(file) {
+    if (!previewImg) return;
+    const url = URL.createObjectURL(file);
+    previewImg.src = url;
+    previewImg.classList.remove("d-none");
+  }
+
+  // ======= Estado inicial =======
+  resetState();
+
+  // ======= Evento =======
   input.addEventListener("change", () => {
-    if (!input.files.length) return;
+    if (!input.files || !input.files.length) {
+      resetState();
+      return;
+    }
 
     const file = input.files[0];
 
-    if (!allowed.includes(file.type)) {
-      error.classList.remove("d-none");
-      ok.classList.add("d-none");
-      btn.disabled = true;
-    } else {
-      error.classList.add("d-none");
-      ok.classList.remove("d-none");
-      btn.disabled = false;
+    // 1) Validar tipo MIME real
+    if (!allowedMime.includes(file.type)) {
+      showError("❌ Archivo no permitido. Solo JPG, PNG o WEBP.");
+      return;
     }
+
+    // 2) Validar tamaño
+    if (file.size > maxBytes) {
+      showError(`❌ Imagen muy pesada. Máximo ${maxSizeMB}MB.`);
+      return;
+    }
+
+    // OK
+    setPreview(file);     // preview opcional
+    showOk();
   });
 });
 </script>
