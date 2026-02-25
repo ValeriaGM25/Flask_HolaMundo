@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Editar usuario{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h2 class="m-0">Editar usuario #{{ usuario.id }}</h2>
+      <small class="text-muted">Actualiza nombre, email, departamento y fecha de nacimiento</small>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('main.usuarios') }}">← Volver a Usuarios</a>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, msg in messages %}
+        <div class="alert alert-{{ category }} mb-3">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <form method="POST" class="row g-2">
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Nombre completo</label>
+          <input class="form-control" name="nombre" value="{{ usuario.nombre }}" required>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Email</label>
+          <input class="form-control" name="email" type="email" value="{{ usuario.email }}" required>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Departamento</label>
+          <input class="form-control" name="departamento" value="{{ usuario.departamento or '' }}" placeholder="Ej: Sistemas, RH, Ventas">
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Fecha de nacimiento</label>
+          <input class="form-control" name="fecha_nacimiento" type="date" value="{{ usuario.fecha_nacimiento or '' }}" required>
+        </div>
+
+        <div class="col-12 d-flex gap-2 mt-2">
+          <button class="btn btn-primary">Guardar cambios</button>
+
+          <a class="btn btn-outline-secondary" href="{{ url_for('main.usuarios') }}">Cancelar</a>
+
+          <form method="POST"
+                action="{{ url_for('main.usuarios_eliminar_form', id=usuario.id) }}"
+                onsubmit="return confirm('¿Eliminar este usuario?');"
+                class="ms-auto">
+            <button class="btn btn-outline-danger" type="submit">Eliminar</button>
+          </form>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

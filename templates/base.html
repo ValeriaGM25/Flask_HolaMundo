@@ -48,8 +48,8 @@
              href="{{ url_for('main.validacion') }}">Formulario</a>
         </li>
         <li class="nav-item">
-        <a class="nav-link {% if request.endpoint in ['main.crud', 'main.crud_editar'] %}active{% endif %}"
-         href="{{ url_for('main.crud') }}">CRUD</a>
+        <a class="nav-link {% if request.endpoint in ['main.usuarios', 'main.usuarios_editar'] %}active{% endif %}"
+        href="{{ url_for('main.usuarios') }}">Usuarios</a>
         </li>
         <li class="nav-item">
           <a class="nav-link {% if request.endpoint == 'main.error_page' %}active{% endif %}"

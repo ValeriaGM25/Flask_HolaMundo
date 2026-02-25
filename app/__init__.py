@@ -10,7 +10,8 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 def get_db():
-    return sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH)
+    return conn
 
 def init_db():
     conn = get_db()
@@ -39,11 +40,21 @@ def init_db():
     )
     """)
 
-    # Si usas carrusel con uploads/BD:
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS carousel_images (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         filename TEXT NOT NULL
+    )
+    """)
+
+    # ✅ TABLA PARA LA PÁGINA DE USUARIOS
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        departamento TEXT DEFAULT 'Sin asignar',
+        fecha_nacimiento TEXT NOT NULL
     )
     """)
 
