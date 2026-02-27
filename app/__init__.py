@@ -11,6 +11,10 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
+    # ✅ ESTA LÍNEA ES LA CLAVE: 
+    # Permite acceder a las columnas por nombre (ej: usuario.id) 
+    # en lugar de solo por posición (ej: usuario[0])
+    conn.row_factory = sqlite3.Row 
     return conn
 
 def init_db():
@@ -62,6 +66,7 @@ def init_db():
     conn.close()
 
 def create_app():
+    # Nota: __name__.split('.')[0] asegura que Flask encuentre las carpetas si usas estructura de paquete
     app = Flask(__name__, template_folder=TEMPLATES_DIR, static_folder=STATIC_DIR)
     app.config["SECRET_KEY"] = "6LehvUQsAAAAANusKcHRfF0w5DkX0L1JYl8Ae28Q"
 
